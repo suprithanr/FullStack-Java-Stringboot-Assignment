@@ -1,0 +1,86 @@
+SQL Assignment
+Schema :
+Emp :- empid, empname, dob, doj, salary, deptid, add1,add2, cityid
+Dept:- deptid, deptname,
+City:- cityid, cityname
+1) Write SQL query to print total employee in the organization
+   select count(empid) from emp;
+
+2) Write SQL query to count total employee in different department
+	select d.deptname,e.* from Dept d join (select count(empid),deptid from Emp group by deptid) e using (deptid);
+	
+3) Write SQL query to count total employee from different cities
+    select city.cityname,city.cityid,count(empname)FROM city inner join emp on emp.cityid = city.cityid group by city.cityid, cityname order by cityname;
+
+4) Write SQL query to print all record of employee who’s salary is greater than 3rd
+minimum salary and less than 3
+rd maximum salary.
+	select * from emp where salary between(select salary from emp group by salary order by salary asc limit 2,1) order by salary; and
+	(select salary from emp group by salary order by salary desc limit 2,1) order by salary;
+
+5) Write SQL to print all record of employee who have working from last 15 years.
+	select *, date_format(from_days(datediff(now(), doj)), '%Y') as age from emp where date_format(from_days(datediff(now(), doj)), '%Y')>= 15;
+
+6) Write SQL to print all record of employee who have joined between two given dates.
+	select  * from emp where doj between '2020-01-01' AND '2022-12-31';
+
+7) Write SQL to print all record of employee who have joined in last one year
+	select *, date_format(from_days(datediff(now(), doj)), '%Y') as age from emp where date_format(from_days(datediff(now(), doj)), '%Y')< 1;
+
+8) Write SQL to print all record of employee who has birthday on 31,24 and 6 of day.
+	select *,day(dob) as day from emp where day(dob) in(31,21,6);
+
+
+9) Write SQL to print all record of employee who has age more than 45 year.
+     select *, date_format(from_days(datediff(now(), dob)), '%Y') as Age from emp where date_format(from_days(datediff(now(), dob)), '%Y')>= 30;
+
+10) Write SQL to update salary by 15% of all employee who has working more than 5
+years but less than 10 years.
+	update emp set salary = salary + (salary * 15/100) where date_format(from_days(datediff(now(), doj)), '%Y')>5 and date_format(from_days(datediff(now(), doj)), '%Y')<10;
+
+---------------------------------------------------------------------------------------------
+Schema:
+User:
+Userid,username, password, dob, date_of_registration, cityid,
+Hobbies:- hobyid, hob_name.
+User_hobbies:- uhid, userid, hobyid
+Category:- catid, catname
+Post;- postid, posttitle, content, userid, date_time, catid
+1) Write SQL query to print user details with maximum number of post.
+	select u.*,p.postid from user as u JOIN post as p  on u.userid = p.userid where u.userid=p.userid 
+	group by u.username  having count(p.userid) = (select max(count)   
+	from (select count(p.userid) as count FROM user AS u,post AS p   
+	where u.userid=p.userid  group by u.username ) AS c ) order by u.username; 
+
+2) Write SQL query to print user details with minimum number of post.
+	select u.*,p.postid from user as u JOIN post as p  on u.userid = p.userid where u.userid=p.userid 
+	group by u.username  having count(p.userid) = (select min(count)   
+	from (select count(p.userid) as count FROM user AS u,post AS p   
+	where u.userid=p.userid  group by u.username ) AS c ) order by u.username; 
+
+3) Write SQL query to print user details with hobbies less than 3.
+select * from user u join user_hobbies uh on u.userid = uh.userid join hobbies h on h.hobyid = uh.hobyid group by u.username having count(*) <3;
+
+4) Write SQL query to print user details with no hobbies.
+ select * from user u join user_hobbies uh on u.userid = uh.userid join hobbies h on h.hobyid = uh.hobyid group by u.username having count(*) =0;
+
+5) Write SQL query to print user details with only 1 hobbies.
+select * from user u join user_hobbies uh on u.userid = uh.useridjoin hobbies h on h.hobyid = uh.hobyid group by u.username having count(*) =1;
+
+6) Write SQL query to print user details who has not published any record in last 7, 14 or
+30 days.
+select * from user u join post p on p.userid = u.userid where p.date_time not in (CURRENT_DATE() - interval 7 day,CURRENT_DATE() - interval 14 day,CURRENT_DATE() - interval 30 day);
+
+7) Write SQL query to print user details who has published more than 2 post a day.
+select * from user u join post p on p.userid = u.userid group by p.date_time having count(*) >=2
+
+8) Write SQL query to print category name with most posts.
+	select * from usercategory u join post p on p.userid = u.catid group by p.catid having count(*) >1;
+
+
+9) Write SQL query to print category name with least posts.
+	select * from usercategory u join post p on p.userid = u.catid group by p.catid having count(*) =1;
+
+10) Write SQL query to print category name which has no post.
+	select * from usercategory where catid not in(select catid from post);
+
